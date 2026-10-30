@@ -2,7 +2,7 @@
 <html lang="en" data-style="classic">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Weathcal – monthly weather calendar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   /* 7-segment display face for the Retro LED style (falls back to VT323 / monospace) */
-  @font-face { a
+  @font-face {
     font-family: "DSEG7";
     src: url("https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2") format("woff2");
     font-weight: 700; font-display: swap;
@@ -441,12 +441,86 @@
     .navR { margin-left: 0; width: 100%; }
     .trends { overflow: visible; }
   }
-  @media (max-width: 640px) {
+  @media (max-width: 700px) {
     .day .lo, .day .p, .day .mid .ab, .day .x, .day .tg { display: none; }
     .day .n .dry { font-size: 0; width: 0.7rem; height: 0.7rem; padding: 0; border: 0; border-radius: 50%; background: currentColor; box-shadow: none; text-shadow: none; }
     [data-style="led"] .day .ab { display: none; }
     .day.today .n::after { content: none; }
     .nav h2 { min-width: 0; }
+  }
+
+  /* ---------- bottom sheets (settings, day details) ---------- */
+  .gear { display: none; width: 44px; height: 44px; padding: 0; align-items: center; justify-content: center; flex: none; }
+  .gear svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .nowline { display: none; }
+  dialog.sheetDlg {
+    padding: 0; border: 0; background: var(--surface); color: var(--ink); width: 100%; max-width: 100%;
+    height: auto; max-height: 88dvh; margin: auto 0 0 0; border-radius: 18px 18px 0 0;
+  }
+  dialog.sheetDlg[open] { display: flex; flex-direction: column; }
+  .sh { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); flex: none; }
+  .sh strong { flex: 1; text-align: center; font-size: 1.1rem; }
+  .sh button { min-width: 44px; min-height: 44px; }
+  .sbody { overflow: auto; padding: 12px 16px calc(20px + env(safe-area-inset-bottom, 0px)); flex: 1; -webkit-overflow-scrolling: touch; }
+  .sbody h4 { margin: 16px 0 6px; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .sbody h4:first-child { margin-top: 0; }
+  .slotRow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sbody .pick { display: flex; width: 100%; }
+  .sbody .pick button { flex: 1; min-height: 44px; }
+  .sbody .layers { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sbody .layers button, .sbody #geo, .sbody #radarBtn, .sbody #unit { min-height: 44px; }
+  .sbody .search { width: 100%; }
+  .sbody .search input { width: 100%; min-height: 44px; }
+  .sbody .results { left: 0; right: 0; width: auto; }
+  .sbody .detail { border: 0; background: none; box-shadow: none; padding: 0; overflow: visible; flex: none; }
+  [data-style="led"] dialog.sheetDlg { border-top: 1px solid #5a3d1a; }
+  [data-style="led"] .sbody h4 { font-size: 1.1rem; }
+  [data-style="led"] .sh strong { font-family: var(--font-label); font-weight: 400; font-size: 1.5rem; text-transform: uppercase; text-shadow: 0 0 8px rgba(255,178,61,.6); }
+
+  /* ---------- phones ---------- */
+  @media (max-width: 700px) {
+    .app { padding: 10px 10px calc(28px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
+    header { flex-wrap: nowrap; gap: 8px; }
+    .brand { flex: 1; min-width: 0; }
+    .brand h1 { font-size: 1.55rem; }
+    .where { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .controls { display: none; }
+    .gear { display: inline-flex; }
+    [data-style="led"] .clockDate { display: none; }
+    [data-style="led"] .clockTime { font-size: 1.6rem; }
+    .main { gap: 10px; }
+    .nav { gap: 6px; margin-bottom: 6px; }
+    .nav > button { min-width: 44px; min-height: 44px; }
+    .nav h2 { flex: 1; text-align: center; font-size: 1.35rem; margin: 0; min-width: 0; }
+    #todayBtn { order: 5; }
+    .navR { order: 6; width: 100%; margin: 0; }
+    .navR .pick { flex: 1; }
+    .navR .pick button { flex: 1; min-height: 40px; }
+    .nowline {
+      display: block; margin: 0 0 8px; padding: 8px 12px; border-left: 3px solid var(--c-rain);
+      background: color-mix(in srgb, var(--c-rain) 10%, var(--surface)); border-radius: 6px; font-size: 0.9rem;
+    }
+    .nowline:empty, .tv .nowline { display: none; }
+    [data-style="led"] .nowline { background: #0d0a07; text-transform: uppercase; font-size: 1.1rem; }
+    .grid { gap: 3px; min-height: 62dvh; grid-template-rows: auto repeat(var(--weeks, 5), minmax(66px, 1fr)); }
+    .dow { text-align: center; padding: 0 0 2px; font-size: 0.78rem; }
+    .day { padding: 4px 4px 5px; border-radius: 8px; align-items: stretch; }
+    .day .n { font-size: 0.8rem; }
+    .day .mid { justify-content: center; }
+    .day .ico { font-size: 1.65rem; }
+    [data-style="led"] .day .mid .px { width: 1.9rem; height: 1.9rem; }
+    .day .hi { font-size: 0.95rem; text-align: center; width: 100%; }
+    .day .bot { justify-content: center; }
+    .under { margin-top: 6px; }
+    .legend { font-size: 0.75rem; }
+    .bar { width: 110px; }
+    aside { display: block; }
+    aside #now { display: none; }
+    aside footer { margin-top: 6px; }
+    #radar { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; margin: 0; border: 0; }
+    .trends { gap: 10px; }
+    .card { padding: 12px 14px; }
+    .stat b { font-size: 1.3rem; }
   }
 </style>
 </head>
@@ -475,6 +549,9 @@
       <button id="radarBtn" type="button" title="Open the live rain radar map">Rain radar</button>
       <button id="unit" type="button" title="Switch between °C and °F">°F</button>
     </div>
+    <button id="settingsBtn" class="gear" type="button" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+    </button>
   </header>
 
   <div class="main" id="main">
@@ -497,6 +574,7 @@
           </div>
         </div>
       </div>
+      <div class="nowline" id="nowLine" aria-live="polite"></div>
       <div class="grid" id="grid"></div>
       <div class="trends" id="trends"></div>
       <div class="under">
@@ -522,6 +600,26 @@
     </aside>
   </div>
 </div>
+
+<dialog id="settings" class="sheetDlg" aria-label="Settings">
+  <div class="sh"><strong>Settings</strong><button type="button" id="settingsClose">Done</button></div>
+  <div class="sbody">
+    <h4>Display style</h4><div id="slotStyle"></div>
+    <h4>Location</h4><div class="slotRow" id="slotLoc"></div>
+    <h4>Calendar layers</h4><div id="slotLayers"></div>
+    <h4>Tools</h4><div class="slotRow" id="slotTools"></div>
+  </div>
+</dialog>
+
+<dialog id="daySheet" class="sheetDlg" aria-label="Day details">
+  <div class="sh">
+    <button type="button" id="dayPrev" aria-label="Previous day">‹</button>
+    <strong id="dayTitle"></strong>
+    <button type="button" id="dayNext" aria-label="Next day">›</button>
+    <button type="button" id="dayClose">Close</button>
+  </div>
+  <div class="sbody" id="daySlot"></div>
+</dialog>
 
 <dialog id="radar" aria-label="Rain radar">
   <div class="rh">
@@ -1560,6 +1658,7 @@
     }
     renderLegend();
     renderNow();
+    updateDayTitle();
   }
 
   function renderCalendar(ref) {
@@ -1722,16 +1821,18 @@
 
   function renderNow() {
     var el = $("now"), n = state.now;
-    if (!n || state.view === "trends") { el.innerHTML = ""; return; }
+    if (!n || state.view === "trends") { el.innerHTML = ""; $("nowLine").textContent = ""; return; }
     var p = n.p || [];
     var have = p.filter(function (v) { return v != null; });
     if (!have.length) {
       el.innerHTML = "<h3>Next 2 hours</h3><div class=\"muted\">Rain nowcast isn't available for this location.</div>";
+      $("nowLine").textContent = "";
       return;
     }
     var first = -1, i;
     for (i = 0; i < p.length; i++) if (p[i] != null && p[i] >= 0.05) { first = i; break; }
     var sum = first < 0 ? "Dry for the next 2 hours" : first === 0 ? "Raining now" : "Rain expected in about " + (first * 15) + " min";
+    $("nowLine").textContent = sum;
     var mx = Math.max(0.5, Math.max.apply(null, have));
     var bars = p.map(function (v, k) {
       var pct = v ? Math.max(8, Math.min(100, v / mx * 100)) : 0;
@@ -1951,6 +2052,7 @@
     $("radarTime").textContent = new Date(fr.time * 1000).toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" }) + (i >= radar.past ? " (forecast)" : "");
   }
   function openRadar() {
+    closeSheet("settings");
     var dlg = $("radar");
     if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute("open", "");
     $("radarMsg").textContent = "";
@@ -1988,6 +2090,7 @@
     if (!cell || !cell.dataset.date) return;
     state.selected = cell.dataset.date;
     render();
+    if (isMobile()) { openSheet("daySheet"); return; }
     var again = $("grid").querySelector('[data-date="' + state.selected + '"]');
     if (again) again.focus({ preventScroll: true });
   }
@@ -2006,11 +2109,12 @@
     var el = ev.target;
     if (el && el.dataset && el.dataset.sec) state.open[el.dataset.sec] = el.open;
   }, true);
-  $("navR").addEventListener("click", function (ev) {
-    var b = ev.target.closest("button");
+  /* delegated on the document because these buttons move into the settings sheet on phones */
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-view], button[data-layer]");
     if (!b) return;
     if (b.dataset.view) { state.view = b.dataset.view; }
-    else if (b.dataset.layer) { state.layers[b.dataset.layer] = !state.layers[b.dataset.layer]; }
+    else { state.layers[b.dataset.layer] = !state.layers[b.dataset.layer]; }
     savePrefs(); render();
   });
 
@@ -2087,6 +2191,77 @@
   document.addEventListener("click", function (ev) {
     if (!ev.target.closest(".search")) $("results").classList.remove("open");
   });
+
+
+  /* ================= phone layout: settings sheet, day sheet, swipe ================= */
+  var mq = window.matchMedia ? window.matchMedia("(max-width: 700px)") : { matches: false };
+  function isMobile() { return !!mq.matches; }
+  function openSheet(id) {
+    var d = $(id);
+    if (!d.open) { if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
+  }
+  function closeSheet(id) {
+    var d = $(id);
+    if (d.open) { if (d.close) d.close(); else d.removeAttribute("open"); }
+  }
+  function updateDayTitle() {
+    $("dayTitle").textContent = state.selected ? parse(state.selected).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }) : "";
+  }
+  var movables = [];
+  function movable(el, slotId) { movables.push({ el: el, parent: el.parentNode, next: el.nextSibling, slot: slotId }); }
+  movable($("skins"), "slotStyle");
+  movable(document.querySelector(".search"), "slotLoc");
+  movable($("geo"), "slotLoc");
+  movable($("radarBtn"), "slotTools");
+  movable($("unit"), "slotTools");
+  movable(document.querySelector(".layers"), "slotLayers");
+  movable($("detail"), "daySlot");
+  function placeControls() {
+    movables.forEach(function (m) {
+      if (isMobile()) { $(m.slot).appendChild(m.el); return; }
+      if (m.el.parentNode === m.parent) return;
+      if (m.next && m.next.parentNode === m.parent) m.parent.insertBefore(m.el, m.next); else m.parent.appendChild(m.el);
+    });
+  }
+  function onLayoutChange() {
+    if (!isMobile()) { closeSheet("settings"); closeSheet("daySheet"); }
+    placeControls();
+    render();
+  }
+  if (mq.addEventListener) mq.addEventListener("change", onLayoutChange);
+  else if (mq.addListener) mq.addListener(onLayoutChange);
+  placeControls();
+
+  $("settingsBtn").addEventListener("click", function () { openSheet("settings"); });
+  $("settingsClose").addEventListener("click", function () { closeSheet("settings"); });
+  $("dayClose").addEventListener("click", function () { closeSheet("daySheet"); });
+  ["settings", "daySheet"].forEach(function (id) {
+    $(id).addEventListener("click", function (ev) { if (ev.target === this) closeSheet(id); });
+  });
+  function moveDay(n) {
+    if (!state.selected) return;
+    var d = addDays(parse(state.selected), n);
+    state.selected = ymd(d);
+    $("daySlot").scrollTop = 0;
+    if (d.getMonth() !== state.month || d.getFullYear() !== state.year) {
+      state.year = d.getFullYear(); state.month = d.getMonth();
+      loadMonth();
+    } else render();
+  }
+  $("dayPrev").addEventListener("click", function () { moveDay(-1); });
+  $("dayNext").addEventListener("click", function () { moveDay(1); });
+
+  var touch = null;
+  $("grid").addEventListener("touchstart", function (ev) {
+    var t = ev.touches[0];
+    touch = { x: t.clientX, y: t.clientY };
+  }, { passive: true });
+  $("grid").addEventListener("touchend", function (ev) {
+    if (!touch || !isMobile() || state.view !== "calendar") return;
+    var t = ev.changedTouches[0], dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 45) shift(dx < 0 ? 1 : -1);
+  }, { passive: true });
 
   /* expose a few pure helpers for testing */
   window.__weathcal = { moonPhase: moonPhase, PIXELS: PIXELS, buildClim: buildClim, niceBounds: niceBounds, chart: chart,
